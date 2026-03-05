@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Mission — Driver Assignments</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FFF8F0; --gold: #F59E0B; --gold-d: #D97706;
+  --teal: #0D9488; --navy: #1E3A5F; --coral: #F97316;
+  --amber: #F59E0B;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--cream);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(circle at 10% 20%,#FDE68A44 0%,transparent 40%),radial-gradient(circle at 90% 80%,#99F6E444 0%,transparent 40%),radial-gradient(circle at 50% 50%,#FED7AA33 0%,transparent 60%);pointer-events:none;}
+
+.hero{position:relative;z-index:1;background:linear-gradient(135deg,#1E3A5F 0%,#2D5A8E 50%,#1A4870 100%);padding:36px 20px 28px;text-align:center;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+.hero-emoji{font-size:52px;display:block;margin-bottom:8px;animation:bounce 2s infinite;}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.hero h1{font-family:'Fredoka One',cursive;font-size:clamp(28px,6vw,48px);color:#FDE68A;letter-spacing:1px;margin-bottom:6px;position:relative;}
+.hero p{color:#BAE6FD;font-size:16px;font-weight:700;position:relative;}
+.timing-strip{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px;position:relative;}
+.timing-pill{background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);border-radius:30px;padding:7px 18px;color:#FDE68A;font-weight:800;font-size:13px;backdrop-filter:blur(4px);}
+.timing-pill.knock{background:rgba(245,158,11,0.25);border-color:var(--gold);color:#FDE68A;}
+
+.day-tabs{position:relative;z-index:1;display:flex;background:#1E3A5F;padding:12px 20px 0;justify-content:center;}
+.tab-btn{padding:10px 32px;border:none;cursor:pointer;font-family:'Fredoka One',cursive;font-size:17px;border-radius:14px 14px 0 0;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);transition:all 0.25s;letter-spacing:0.5px;}
+.tab-btn.active{background:var(--cream);color:#1E3A5F;transform:translateY(2px);}
+
+.knock-banner{position:relative;z-index:1;background:linear-gradient(90deg,#FEF3C7,#FDE68A,#FEF3C7);border-bottom:3px solid var(--gold);padding:10px 20px;text-align:center;font-weight:800;font-size:14px;color:#1E3A5F;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
+
+main{position:relative;z-index:1;padding:24px 16px 48px;max-width:1100px;margin:0 auto;}
+.day-section{display:none;}
+.day-section.active{display:block;}
+
+.zone-group{margin-bottom:40px;}
+.zone-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:10px 18px;border-radius:14px;color:white;}
+.zone-header h2{font-family:'Fredoka One',cursive;font-size:20px;flex:1;}
+.zone-header .zh-sub{font-size:13px;font-weight:700;opacity:0.85;}
+.drivers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px;}
+
+.driver-card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08),0 1px 4px rgba(0,0,0,0.06);transition:transform 0.2s,box-shadow 0.2s;animation:slideUp 0.4s ease both;}
+.driver-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,0.13);}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.card-top{padding:16px 18px 12px;display:flex;align-items:center;gap:12px;}
+.driver-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.15);background:rgba(255,255,255,0.2);}
+.driver-name{font-family:'Fredoka One',cursive;font-size:19px;color:white;line-height:1.1;}
+.driver-label{font-size:11px;font-weight:800;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:1px;}
+
+.missionaries-section{padding:12px 18px;background:#F8FAFC;border-top:1px solid #E2E8F0;}
+.mis-title{font-size:10px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
+.missionaries-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+.missionary-tag{background:white;border:1.5px solid #E2E8F0;border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;color:#334155;display:flex;align-items:center;gap:5px;transition:border-color 0.2s;}
+.missionary-tag:hover{border-color:var(--teal);}
+.missionary-tag .age{font-size:10px;color:#94A3B8;font-weight:600;background:#F1F5F9;border-radius:4px;padding:1px 4px;margin-left:auto;flex-shrink:0;}
+
+.homes-section{padding:14px 18px 18px;}
+.homes-title{font-size:10px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
+.home-stop{display:flex;gap:12px;margin-bottom:12px;}
+.stop-num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:16px;color:white;flex-shrink:0;margin-top:2px;}
+.stop-content{flex:1;}
+.stop-family{font-family:'Fredoka One',cursive;font-size:16px;color:#1E3A5F;line-height:1.1;}
+.stop-time{font-size:11px;font-weight:800;padding:2px 8px;border-radius:10px;display:inline-block;margin:3px 0 4px;}
+.stop-addr{font-size:12px;color:#64748B;font-weight:600;line-height:1.3;}
+.map-btn{display:inline-flex;align-items:center;gap:5px;margin-top:5px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:800;text-decoration:none;transition:all 0.2s;border:2px solid;}
+.map-btn:hover{transform:scale(1.05);}
+.connector{width:2px;height:16px;margin:2px 0 2px 16px;border-radius:2px;opacity:0.3;}
+
+.knock-card-reminder{margin:0 18px 14px;background:#FFFBEB;border:2px dashed var(--gold);border-radius:12px;padding:8px 12px;font-size:12px;font-weight:700;color:#92400E;display:flex;align-items:center;gap:8px;}
+
+.time-first{background:#D1FAE5;color:#065F46;}
+.time-second{background:#DBEAFE;color:#1E40AF;}
+
+/* Zone gradients */
+.z1{background:linear-gradient(135deg,#0D9488,#0F766E);}
+.z2{background:linear-gradient(135deg,#DC2626,#B91C1C);}
+.z3{background:linear-gradient(135deg,#7C3AED,#6D28D9);}
+.z4{background:linear-gradient(135deg,#D97706,#B45309);}
+.z5{background:linear-gradient(135deg,#2563EB,#1D4ED8);}
+.z6{background:linear-gradient(135deg,#9333EA,#7E22CE);}
+
+.s1a{background:#0D9488;}.s1b{background:#0F766E;}
+.s2a{background:#DC2626;}.s2b{background:#B91C1C;}
+.s3a{background:#7C3AED;}.s3b{background:#6D28D9;}
+.s4a{background:#D97706;}.s4b{background:#B45309;}
+.s5a{background:#2563EB;}.s5b{background:#1D4ED8;}
+.s6a{background:#9333EA;}.s6b{background:#7E22CE;}
+.s7a{background:#0D9488;}.s7b{background:#065F46;}.s7c{background:#0F766E;}
+.s8a{background:#DC2626;}.s8b{background:#B91C1C;}
+.s9a{background:#7C3AED;}.s9b{background:#6D28D9;}
+
+.c1{background:#0D9488;}.c2{background:#DC2626;}.c3{background:#7C3AED;}
+.c4{background:#D97706;}.c5{background:#2563EB;}.c6{background:#9333EA;}
+
+.m1{color:#0D9488;border-color:#0D9488;background:#F0FDFA;}.m1:hover{background:#0D9488;color:white;}
+.m2{color:#DC2626;border-color:#DC2626;background:#FEF2F2;}.m2:hover{background:#DC2626;color:white;}
+.m3{color:#7C3AED;border-color:#7C3AED;background:#F5F3FF;}.m3:hover{background:#7C3AED;color:white;}
+.m4{color:#D97706;border-color:#D97706;background:#FFFBEB;}.m4:hover{background:#D97706;color:white;}
+.m5{color:#2563EB;border-color:#2563EB;background:#EFF6FF;}.m5:hover{background:#2563EB;color:white;}
+.m6{color:#9333EA;border-color:#9333EA;background:#FAF5FF;}.m6:hover{background:#9333EA;color:white;}
+
+footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;font-size:13px;font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <span class="hero-emoji">🚗✨</span>
+  <h1>Mini Mission Driver Assignments</h1>
+  <p>Riverton 24th Tongan Ward · Your route, your youth, your mission!</p>
+  <div class="timing-strip" id="timing-strip">
+    <div class="timing-pill">📅 Saturday · Leave 6:15 PM</div>
+    <div class="timing-pill">🏠 1st Visit 6:20–7:00 PM</div>
+    <div class="timing-pill knock">🚪 Knock @ 6:40 PM</div>
+    <div class="timing-pill">🚗 Drive 7:00–7:10 PM</div>
+    <div class="timing-pill">🏠 2nd Visit 7:10–7:50 PM</div>
+    <div class="timing-pill knock">🚪 Knock @ 7:30 PM</div>
+    <div class="timing-pill">⛪ Back 8:00 PM</div>
+  </div>
+</div>
+
+<div class="day-tabs">
+  <button class="tab-btn active" onclick="showDay('sat',this)">📅 Saturday</button>
+  <button class="tab-btn" onclick="showDay('sun',this)">☀️ Sunday</button>
+</div>
+
+<div class="knock-banner" id="knock-banner">
+  🚪 <strong>DOOR KNOCK RULE:</strong> At the 20-minute mark, the <em>next companionship</em> walks up and knocks — that's the signal to wrap up gracefully!
+</div>
+
+<main>
+
+<!-- ══════════════ SATURDAY ══════════════ -->
+<div class="day-section active" id="sat">
+
+  <!-- ZONE 1 -->
+  <div class="zone-group">
+    <div class="zone-header z1">
+      <div><h2>Zone 1 — Zion District 1</h2><div class="zh-sub">Draper · 2 Homes</div></div>
+      <span style="font-size:28px">🏘️</span>
+    </div>
+    <div class="drivers-grid">
+
+      <div class="driver-card" style="animation-delay:0.05s">
+        <div class="card-top z1">
+          <div class="driver-avatar">🚗</div>
+          <div><div class="driver-label">Driver 1</div><div class="driver-name">Talo</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Alema Malietulua <span class="age">18</span></div>
+            <div class="missionary-tag">Benjamin De Hoyos <span class="age">17</span></div>
+            <div class="missionary-tag">Tonga Tafisi <span class="age">17</span></div>
+            <div class="missionary-tag">Sione Afemui <span class="age">16</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Your Route</div>
+          <div class="home-stop">
+            <div class="stop-num s1a">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Filipe Fa</div>
+              <span class="stop-time time-first">6:20 PM — First Visit</span>
+              <div class="stop-addr">167 Flowerfield Drive<br>Draper, UT 84020</div>
+              <a class="map-btn m1" href="https://maps.google.com/?q=167+Flowerfield+Drive+Draper+UT+84020" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c1"></div>
+          <div class="home-stop">
+            <div class="stop-num s1b">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Seleti Fevaleaki</div>
+              <span class="stop-time time-second">7:10 PM — Second Visit</span>
+              <div class="stop-addr">712 W Stephens View Way<br>Draper, UT 84020</div>
+              <a class="map-btn m1" href="https://maps.google.com/?q=712+W+Stephens+View+Way+Draper+UT+84020" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>6:40 PM</strong> · <strong>7:30 PM</strong></span></div>
+      </div>
+
+      <div class="driver-card" style="animation-delay:0.1s">
+        <div class="card-top z1">
+          <div class="driver-avatar">🚙</div>
+          <div><div class="driver-label">Driver 2</div><div class="driver-name">Lisiate & Cherise Fevaleaki</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Ramses Mounga <span class="age">16</span></div>
+            <div class="missionary-tag">Treasure Matelau <span class="age">16</span></div>
+            <div class="missionary-tag">Sam Lapuaho <span class="age">16</span></div>
+            <div class="missionary-tag">Paula Havea <span class="age">17</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Your Route</div>
+          <div class="home-stop">
+            <div class="stop-num s1b">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Seleti Fevaleaki</div>
+              <span class="stop-time time-first">6:20 PM — First Visit</span>
+              <div class="stop-addr">712 W Stephens View Way<br>Draper, UT 84020</div>
+              <a class="map-btn m1" href="https://maps.google.com/?q=712+W+Stephens+View+Way+Draper+UT+84020" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c1"></div>
+          <div class="home-stop">
+            <div class="stop-num s1a">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Filipe Fa</div>
+              <span class="stop-time time-second">7:10 PM — Second Visit</span>
+              <div class="stop-addr">167 Flowerfield Drive<br>Draper, UT 84020</div>
+              <a class="map-btn m1" href="https://maps.google.com/?q=167+Flowerfield+Drive+Draper+UT+84020" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>6:40 PM</strong> · <strong>7:30 PM</strong></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZONE 2 -->
+  <div class="zone-group">
+    <div class="zone-header z2">
+      <div><h2>Zone 2 — Zion District 2</h2><div class="zh-sub">Riverton / South Jordan · 2 Homes</div></div>
+      <span style="font-size:28px">🏘️</span>
+    </div>
+    <div class="drivers-grid">
+
+      <div class="driver-card" style="animation-delay:0.05s">
+        <div class="card-top z2">
+          <div class="driver-avatar">🚗</div>
+          <div><div class="driver-label">Driver 1</div><div class="driver-name">Gooch</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Elijah Te'o <span class="age">15</span></div>
+            <div class="missionary-tag">Ethan Hafoka <span class="age">15</span></div>
+            <div class="missionary-tag">Lusa Lutui <span class="age">14</span></div>
+            <div class="missionary-tag">Talimoni (Moni) Langi <span class="age">14</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Your Route</div>
+          <div class="home-stop">
+            <div class="stop-num s2a">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Malietulua</div>
+              <span class="stop-time time-first">6:20 PM — First Visit</span>
+              <div class="stop-addr">3663 W Salinas Dr<br>Riverton, UT 84065</div>
+              <a class="map-btn m2" href="https://maps.google.com/?q=3663+W+Salinas+Dr+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c2"></div>
+          <div class="home-stop">
+            <div class="stop-num s2b">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Tafisi</div>
+              <span class="stop-time time-second">7:10 PM — Second Visit</span>
+              <div class="stop-addr">11542 S 2950 W<br>South Jordan, UT 84095</div>
+              <a class="map-btn m2" href="https://maps.google.com/?q=11542+S+2950+W+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>6:40 PM</strong> · <strong>7:30 PM</strong></span></div>
+      </div>
+
+      <div class="driver-card" style="animation-delay:0.1s">
+        <div class="card-top z2">
+          <div class="driver-avatar">🚙</div>
+          <div><div class="driver-label">Driver 2</div><div class="driver-name">Aisea Mounga</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Jeremiah Takai <span class="age">13</span></div>
+            <div class="missionary-tag">Ali'i Te'o <span class="age">13</span></div>
+            <div class="missionary-tag">Lopeti Barrett <span class="age">15</span></div>
+            <div class="missionary-tag">Siah Fungalei <span class="age">16</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Your Route</div>
+          <div class="home-stop">
+            <div class="stop-num s2b">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Tafisi</div>
+              <span class="stop-time time-first">6:20 PM — First Visit</span>
+              <div class="stop-addr">11542 S 2950 W<br>South Jordan, UT 84095</div>
+              <a class="map-btn m2" href="https://maps.google.com/?q=11542+S+2950+W+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c2"></div>
+          <div class="home-stop">
+            <div class="stop-num s2a">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Malietulua</div>
+              <span class="stop-time time-second">7:10 PM — Second Visit</span>
+              <div class="stop-addr">3663 W Salinas Dr<br>Riverton, UT 84065</div>
+              <a class="map-btn m2" href="https://maps.google.com/?q=3663+W+Salinas+Dr+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>6:40 PM</strong> · <strong>7:30 PM</strong></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZONE 3 -->
+  <div class="zone-group">
+    <div class="zone-header z3">
+      <div><h2>Zone 3 — Alma District 1</h2><div class="zh-sub">South Jordan · 2 Homes</div></div>
+      <span style="font-size:28px">🏘️</span>
+    </div>
+    <div class="drivers-grid">
+
+      <div class="driver-card" style="animation-delay:0.05s">
+        <div class="card-top z3">
+          <div class="driver-avatar">🚗</div>
+          <div><div class="driver-label">Driver 1</div><div class="driver-name">Fano</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Elijah Lutui <span class="age">17</span></div>
+            <div class="missionary-tag">KJ Afemui <span class="age">17</span></div>
+            <div class="missionary-tag">Fine Langi <span class="age">16</span></div>
+            <div class="missionary-tag">Lisiate Vahe <span class="age">16</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Your Route</div>
+          <div class="home-stop">
+            <div class="stop-num s3a">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Sau Faungupou</div>
+              <span class="stop-time time-first">6:20 PM — First Visit</span>
+              <div class="stop-addr">11695 S Eureka Way<br>South Jordan, UT 84095</div>
+              <a class="map-btn m3" href="https://maps.google.com/?q=11695+S+Eureka+Way+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c3"></div>
+          <div class="home-stop">
+            <div class="stop-num s3b">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Apo Ahohako</div>
+              <span class="stop-time time-second">7:10 PM — Second Visit</span>
+              <div class="stop-addr">1962 W Ingot Way<br>South Jordan, UT 84095</div>
+              <a class="map-btn m3" href="https://maps.google.com/?q=1962+W+Ingot+Way+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>6:40 PM</strong> · <strong>7:30 PM</strong></span></div>
+      </div>
+
+      <div class="driver-card" style="animation-delay:0.1s">
+        <div class="card-top z3">
+          <div class="driver-avatar">🚙</div>
+          <div><div class="driver-label">Driver 2</div><div class="driver-name">Niu Takai</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Isileli Moli <span class="age">15</span></div>
+            <div class="missionary-tag">Sione Toutai <span class="age">16</span></div>
+            <div class="missionary-tag">Filimone (Mone) Vaivaka <span class="age">15</span></div>
+            <div class="missionary-tag">Inoke Vahe <span class="age">15</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Your Route</div>
+          <div class="home-stop">
+            <div class="stop-num s3b">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Apo Ahohako</div>
+              <span class="stop-time time-first">6:20 PM — First Visit</span>
+              <div class="stop-addr">1962 W Ingot Way<br>South Jordan, UT 84095</div>
+              <a class="map-btn m3" href="https://maps.google.com/?q=1962+W+Ingot+Way+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c3"></div>
+          <div class="home-stop">
+            <div class="stop-num s3a">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Sau Faungupou</div>
+              <span class="stop-time time-second">7:10 PM — Second Visit</span>
+              <div class="stop-addr">11695 S Eureka Way<br>South Jordan, UT 84095</div>
+              <a class="map-btn m3" href="https://maps.google.com/?q=11695+S+Eureka+Way+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>6:40 PM</strong> · <strong>7:30 PM</strong></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZONE 4 -->
+  <div class="zone-group">
+    <div class="zone-header z4">
+      <div><h2>Zone 4 — Alma District 2</h2><div class="zh-sub">Riverton / Draper · 2 Homes</div></div>
+      <span style="font-size:28px">🏘️</span>
+    </div>
+    <div class="drivers-grid">
+
+      <div class="driver-card" style="animation-delay:0.05s">
+        <div class="card-top z4">
+          <div class="driver-avatar">🚗</div>
+          <div><div class="driver-label">Driver 1</div><div class="driver-name">Saia</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Falekaono (Ono) Tafisi <span class="age">14</span></div>
+            <div class="missionary-tag">Tevita Taulanga <span class="age">14</span></div>
+            <div class="missionary-tag">Nanaia (Naia) Vaivaka <span class="age">13</span></div>
+            <div class="missionary-tag">Charlie Toutai <span class="age">13</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Your Route</div>
+          <div class="home-stop">
+            <div class="stop-num s4a">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Matulino</div>
+              <span class="stop-time time-first">6:20 PM — First Visit</span>
+              <div class="stop-addr">2150 W 12824 S<br>Riverton, UT 84065</div>
+              <a class="map-btn m4" href="https://maps.google.com/?q=2150+W+12824+S+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c4"></div>
+          <div class="home-stop">
+            <div class="stop-num s4b">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Danny Steele</div>
+              <span class="stop-time time-second">7:10 PM — Second Visit</span>
+              <div class="stop-addr">13589 S 600 W Unit A311<br>Draper, UT 84020</div>
+              <a class="map-btn m4" href="https://maps.google.com/?q=13589+S+600+W+Draper+UT+84020" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>6:40 PM</strong> · <strong>7:30 PM</strong></span></div>
+      </div>
+
+      <div class="driver-card" style="animation-delay:0.1s">
+        <div class="card-top z4">
+          <div class="driver-avatar">🚙</div>
+          <div><div class="driver-label">Driver 2</div><div class="driver-name">Loa Fa</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Jayden Galvin <span class="age">16</span></div>
+            <div class="missionary-tag">Taitusi Tu'ikolovatu <span class="age">16</span></div>
+            <div class="missionary-tag">Sioeli Havea <span class="age">15</span></div>
+            <div class="missionary-tag">LJ Fevaleaki <span class="age">18</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Your Route</div>
+          <div class="home-stop">
+            <div class="stop-num s4b">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Danny Steele</div>
+              <span class="stop-time time-first">6:20 PM — First Visit</span>
+              <div class="stop-addr">13589 S 600 W Unit A311<br>Draper, UT 84020</div>
+              <a class="map-btn m4" href="https://maps.google.com/?q=13589+S+600+W+Draper+UT+84020" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c4"></div>
+          <div class="home-stop">
+            <div class="stop-num s4a">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Matulino</div>
+              <span class="stop-time time-second">7:10 PM — Second Visit</span>
+              <div class="stop-addr">2150 W 12824 S<br>Riverton, UT 84065</div>
+              <a class="map-btn m4" href="https://maps.google.com/?q=2150+W+12824+S+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>6:40 PM</strong> · <strong>7:30 PM</strong></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZONE 5 -->
+  <div class="zone-group">
+    <div class="zone-header z5">
+      <div><h2>Zone 5 — Zion District YW</h2><div class="zh-sub">Riverton · 2 Homes</div></div>
+      <span style="font-size:28px">🌸</span>
+    </div>
+    <div class="drivers-grid">
+
+      <div class="driver-card" style="animation-delay:0.05s">
+        <div class="card-top z5">
+          <div class="driver-avatar">🚗</div>
+          <div><div class="driver-label">Driver 1</div><div class="driver-name">Mark & Leilani Barrett</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Sulieti (Suli) Tafisi <span class="age">16</span></div>
+            <div class="missionary-tag">'Alilia Hola <span class="age">19</span></div>
+            <div class="missionary-tag">Losaline (Line) Kaufusi <span class="age">17</span></div>
+            <div class="missionary-tag">Leila Iongi <span class="age">18</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Your Route</div>
+          <div class="home-stop">
+            <div class="stop-num s5a">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Albert Tai</div>
+              <span class="stop-time time-first">6:20 PM — First Visit</span>
+              <div class="stop-addr">1830 W 13400 S<br>Riverton, UT 84065</div>
+              <a class="map-btn m5" href="https://maps.google.com/?q=1830+W+13400+S+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c5"></div>
+          <div class="home-stop">
+            <div class="stop-num s5b">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Siale Hola</div>
+              <span class="stop-time time-second">7:10 PM — Second Visit</span>
+              <div class="stop-addr">3106 W Desert Rose Dr<br>Riverton, UT 84065</div>
+              <a class="map-btn m5" href="https://maps.google.com/?q=3106+W+Desert+Rose+Dr+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>6:40 PM</strong> · <strong>7:30 PM</strong></span></div>
+      </div>
+
+      <div class="driver-card" style="animation-delay:0.1s">
+        <div class="card-top z5">
+          <div class="driver-avatar">🚙</div>
+          <div><div class="driver-label">Driver 2</div><div class="driver-name">Grace & Tame Fangupou</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Atelaite Fa <span class="age">15</span></div>
+            <div class="missionary-tag">Kesaia Pouha <span class="age">16</span></div>
+            <div class="missionary-tag">Josephine Pau'u <span class="age">15</span></div>
+            <div class="missionary-tag">Ufilini Moli <span class="age">13</span></div>
+            <div class="missionary-tag">Amelia (Mia) Levatau <span class="age">15</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Your Route</div>
+          <div class="home-stop">
+            <div class="stop-num s5b">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Siale Hola</div>
+              <span class="stop-time time-first">6:20 PM — First Visit</span>
+              <div class="stop-addr">3106 W Desert Rose Dr<br>Riverton, UT 84065</div>
+              <a class="map-btn m5" href="https://maps.google.com/?q=3106+W+Desert+Rose+Dr+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c5"></div>
+          <div class="home-stop">
+            <div class="stop-num s5a">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Albert Tai</div>
+              <span class="stop-time time-second">7:10 PM — Second Visit</span>
+              <div class="stop-addr">1830 W 13400 S<br>Riverton, UT 84065</div>
+              <a class="map-btn m5" href="https://maps.google.com/?q=1830+W+13400+S+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>6:40 PM</strong> · <strong>7:30 PM</strong></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZONE 6 -->
+  <div class="zone-group">
+    <div class="zone-header z6">
+      <div><h2>Zone 6 — Alma District YW</h2><div class="zh-sub">Sandy / Riverton · 2 Homes</div></div>
+      <span style="font-size:28px">🌸</span>
+    </div>
+    <div class="drivers-grid">
+
+      <div class="driver-card" style="animation-delay:0.05s">
+        <div class="card-top z6">
+          <div class="driver-avatar">🚗</div>
+          <div><div class="driver-label">Driver 1</div><div class="driver-name">Kalo & Sia Tupouata</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Selai Taumoefolau <span class="age">13</span></div>
+            <div class="missionary-tag">Abby De Hoyos <span class="age">14</span></div>
+            <div class="missionary-tag">Pamela Lapu'aho <span class="age">15</span></div>
+            <div class="missionary-tag">Leilani Pouha <span class="age">17</span></div>
+            <div class="missionary-tag">Veana Pau'u <span class="age">16</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Your Route</div>
+          <div class="home-stop">
+            <div class="stop-num s6a">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Seui</div>
+              <span class="stop-time time-first">6:20 PM — First Visit</span>
+              <div class="stop-addr">200 E 8680 S<br>Sandy, UT 84070</div>
+              <a class="map-btn m6" href="https://maps.google.com/?q=200+E+8680+S+Sandy+UT+84070" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c6"></div>
+          <div class="home-stop">
+            <div class="stop-num s6b">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Moleni</div>
+              <span class="stop-time time-second">7:10 PM — Second Visit</span>
+              <div class="stop-addr">3361 W Water St<br>Riverton, UT 84065</div>
+              <a class="map-btn m6" href="https://maps.google.com/?q=3361+W+Water+St+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>6:40 PM</strong> · <strong>7:30 PM</strong></span></div>
+      </div>
+
+      <div class="driver-card" style="animation-delay:0.1s">
+        <div class="card-top z6">
+          <div class="driver-avatar">🚙</div>
+          <div><div class="driver-label">Driver 2</div><div class="driver-name">Drina & Seisela Lutui</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Verena Takai <span class="age">14</span></div>
+            <div class="missionary-tag">Alice Haunga <span class="age">15</span></div>
+            <div class="missionary-tag">Isis Mounga <span class="age">13</span></div>
+            <div class="missionary-tag">Naini (Lose) Kaufusi <span class="age">15</span></div>
+            <div class="missionary-tag">Temukisa Havea <span class="age">13</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Your Route</div>
+          <div class="home-stop">
+            <div class="stop-num s6b">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Moleni</div>
+              <span class="stop-time time-first">6:20 PM — First Visit</span>
+              <div class="stop-addr">3361 W Water St<br>Riverton, UT 84065</div>
+              <a class="map-btn m6" href="https://maps.google.com/?q=3361+W+Water+St+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c6"></div>
+          <div class="home-stop">
+            <div class="stop-num s6a">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Seui</div>
+              <span class="stop-time time-second">7:10 PM — Second Visit</span>
+              <div class="stop-addr">200 E 8680 S<br>Sandy, UT 84070</div>
+              <a class="map-btn m6" href="https://maps.google.com/?q=200+E+8680+S+Sandy+UT+84070" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>6:40 PM</strong> · <strong>7:30 PM</strong></span></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end sat -->
+
+<!-- ══════════════ SUNDAY ══════════════ -->
+<div class="day-section" id="sun">
+
+  <!-- ZONE 1 — 3 HOMES -->
+  <div class="zone-group">
+    <div class="zone-header z1">
+      <div><h2>Zone 1 — Sunday ★ 3 Homes</h2><div class="zh-sub">West Jordan / Taylorsville / Riverton</div></div>
+      <span style="font-size:28px">⭐</span>
+    </div>
+    <div class="drivers-grid">
+
+      <div class="driver-card" style="animation-delay:0.05s">
+        <div class="card-top z1">
+          <div class="driver-avatar">🚗</div>
+          <div><div class="driver-label">Driver 1</div><div class="driver-name">Sai & Gooch</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Alema Malietulua <span class="age">18</span></div>
+            <div class="missionary-tag">Benjamin De Hoyos <span class="age">17</span></div>
+            <div class="missionary-tag">Elijah Te'o <span class="age">15</span></div>
+            <div class="missionary-tag">Ethan Hafoka <span class="age">15</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Route: Home A → Home C</div>
+          <div class="home-stop">
+            <div class="stop-num s7a">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Setima Malietulua</div>
+              <span class="stop-time time-first">1:20 PM — First Visit</span>
+              <div class="stop-addr">5353 W Saguaro Dr<br>West Jordan, UT 84081</div>
+              <a class="map-btn m1" href="https://maps.google.com/?q=5353+W+Saguaro+Dr+West+Jordan+UT+84081" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c1"></div>
+          <div class="home-stop">
+            <div class="stop-num s7c">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Te'o Family</div>
+              <span class="stop-time time-second">2:10 PM — Second Visit</span>
+              <div class="stop-addr">4887 S 3200 W<br>Taylorsville, UT 84129</div>
+              <a class="map-btn m1" href="https://maps.google.com/?q=4887+S+3200+W+Taylorsville+UT+84129" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>1:40 PM</strong> · <strong>2:30 PM</strong></span></div>
+      </div>
+
+      <div class="driver-card" style="animation-delay:0.1s">
+        <div class="card-top z1">
+          <div class="driver-avatar">🚙</div>
+          <div><div class="driver-label">Driver 2</div><div class="driver-name">Niu & Fano</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Ramses Mounga <span class="age">16</span></div>
+            <div class="missionary-tag">Treasure Matelau <span class="age">16</span></div>
+            <div class="missionary-tag">Jeremiah Takai <span class="age">13</span></div>
+            <div class="missionary-tag">Ali'i Te'o <span class="age">13</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Route: Home C → Home B</div>
+          <div class="home-stop">
+            <div class="stop-num s7c">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Te'o Family</div>
+              <span class="stop-time time-first">1:20 PM — First Visit</span>
+              <div class="stop-addr">4887 S 3200 W<br>Taylorsville, UT 84129</div>
+              <a class="map-btn m1" href="https://maps.google.com/?q=4887+S+3200+W+Taylorsville+UT+84129" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c1"></div>
+          <div class="home-stop">
+            <div class="stop-num s7b">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Malietulua Family</div>
+              <span class="stop-time time-second">2:10 PM — Second Visit</span>
+              <div class="stop-addr">3663 W Salinas Dr<br>Riverton, UT 84065</div>
+              <a class="map-btn m1" href="https://maps.google.com/?q=3663+W+Salinas+Dr+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>1:40 PM</strong> · <strong>2:30 PM</strong></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZONE 2 SUNDAY -->
+  <div class="zone-group">
+    <div class="zone-header z2">
+      <div><h2>Zone 2 — Sunday</h2><div class="zh-sub">Bluffdale · 2 Homes</div></div>
+      <span style="font-size:28px">🏘️</span>
+    </div>
+    <div class="drivers-grid">
+
+      <div class="driver-card" style="animation-delay:0.05s">
+        <div class="card-top z2">
+          <div class="driver-avatar">🚗</div>
+          <div><div class="driver-label">Driver 1</div><div class="driver-name">Lisiate Fevaleaki</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Sulieti (Suli) Tafisi <span class="age">16</span></div>
+            <div class="missionary-tag">'Alilia Hola <span class="age">19</span></div>
+            <div class="missionary-tag">Tonga Tafisi <span class="age">17</span></div>
+            <div class="missionary-tag">Sione Afemui <span class="age">16</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Your Route</div>
+          <div class="home-stop">
+            <div class="stop-num s8a">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Heather Uhatafe</div>
+              <span class="stop-time time-first">1:20 PM — First Visit</span>
+              <div class="stop-addr">1075 W Coyote Gulch Way<br>Bluffdale, UT 84065</div>
+              <a class="map-btn m2" href="https://maps.google.com/?q=1075+W+Coyote+Gulch+Way+Bluffdale+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c2"></div>
+          <div class="home-stop">
+            <div class="stop-num s8b">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Sia Tupouata</div>
+              <span class="stop-time time-second">2:10 PM — Second Visit</span>
+              <div class="stop-addr">14035 S Marketview Dr Apt E102<br>Bluffdale, UT 84065</div>
+              <a class="map-btn m2" href="https://maps.google.com/?q=14035+S+Marketview+Dr+Bluffdale+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>1:40 PM</strong> · <strong>2:30 PM</strong></span></div>
+      </div>
+
+      <div class="driver-card" style="animation-delay:0.1s">
+        <div class="card-top z2">
+          <div class="driver-avatar">🚙</div>
+          <div><div class="driver-label">Driver 2</div><div class="driver-name">Mark & Leilani Barrett</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Lusa Lutui <span class="age">14</span></div>
+            <div class="missionary-tag">Talimoni (Moni) Langi <span class="age">14</span></div>
+            <div class="missionary-tag">Losaline (Line) Kaufusi <span class="age">17</span></div>
+            <div class="missionary-tag">Leila Iongi <span class="age">18</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Your Route</div>
+          <div class="home-stop">
+            <div class="stop-num s8b">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Sia Tupouata</div>
+              <span class="stop-time time-first">1:20 PM — First Visit</span>
+              <div class="stop-addr">14035 S Marketview Dr Apt E102<br>Bluffdale, UT 84065</div>
+              <a class="map-btn m2" href="https://maps.google.com/?q=14035+S+Marketview+Dr+Bluffdale+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c2"></div>
+          <div class="home-stop">
+            <div class="stop-num s8a">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Heather Uhatafe</div>
+              <span class="stop-time time-second">2:10 PM — Second Visit</span>
+              <div class="stop-addr">1075 W Coyote Gulch Way<br>Bluffdale, UT 84065</div>
+              <a class="map-btn m2" href="https://maps.google.com/?q=1075+W+Coyote+Gulch+Way+Bluffdale+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>1:40 PM</strong> · <strong>2:30 PM</strong></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZONE 3 SUNDAY -->
+  <div class="zone-group">
+    <div class="zone-header z3">
+      <div><h2>Zone 3 — Sunday</h2><div class="zh-sub">Riverton / South Jordan · 2 Homes</div></div>
+      <span style="font-size:28px">🏘️</span>
+    </div>
+    <div class="drivers-grid">
+
+      <div class="driver-card" style="animation-delay:0.05s">
+        <div class="card-top z3">
+          <div class="driver-avatar">🚗</div>
+          <div><div class="driver-label">Driver 1</div><div class="driver-name">Lala & Kim</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Atelaite Fa <span class="age">15</span></div>
+            <div class="missionary-tag">Kesaia Pouha <span class="age">16</span></div>
+            <div class="missionary-tag">Sam Lapuaho <span class="age">16</span></div>
+            <div class="missionary-tag">Paula Havea <span class="age">17</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Your Route</div>
+          <div class="home-stop">
+            <div class="stop-num s9a">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Isi Mataele</div>
+              <span class="stop-time time-first">1:20 PM — First Visit</span>
+              <div class="stop-addr">1605 W Meadow Green Dr<br>Riverton, UT 84065</div>
+              <a class="map-btn m3" href="https://maps.google.com/?q=1605+W+Meadow+Green+Dr+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c3"></div>
+          <div class="home-stop">
+            <div class="stop-num s9b">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Apo & Marie</div>
+              <span class="stop-time time-second">2:10 PM — Second Visit</span>
+              <div class="stop-addr">1962 W Ingot Way<br>South Jordan, UT 84095</div>
+              <a class="map-btn m3" href="https://maps.google.com/?q=1962+W+Ingot+Way+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>1:40 PM</strong> · <strong>2:30 PM</strong></span></div>
+      </div>
+
+      <div class="driver-card" style="animation-delay:0.1s">
+        <div class="card-top z3">
+          <div class="driver-avatar">🚙</div>
+          <div><div class="driver-label">Driver 2</div><div class="driver-name">Talo & Alisha</div></div>
+        </div>
+        <div class="missionaries-section">
+          <div class="mis-title">👥 Your Missionaries</div>
+          <div class="missionaries-grid">
+            <div class="missionary-tag">Lopeti Barrett <span class="age">15</span></div>
+            <div class="missionary-tag">Siah Fungalei <span class="age">16</span></div>
+            <div class="missionary-tag">Josephine Pau'u <span class="age">15</span></div>
+            <div class="missionary-tag">Ufilini Moli <span class="age">13</span></div>
+            <div class="missionary-tag">Amelia (Mia) Levatau <span class="age">15</span></div>
+          </div>
+        </div>
+        <div class="homes-section">
+          <div class="homes-title">🗺️ Your Route</div>
+          <div class="home-stop">
+            <div class="stop-num s9b">1</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Apo & Marie</div>
+              <span class="stop-time time-first">1:20 PM — First Visit</span>
+              <div class="stop-addr">1962 W Ingot Way<br>South Jordan, UT 84095</div>
+              <a class="map-btn m3" href="https://maps.google.com/?q=1962+W+Ingot+Way+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+          <div class="connector c3"></div>
+          <div class="home-stop">
+            <div class="stop-num s9a">2</div>
+            <div class="stop-content">
+              <div class="stop-family">🏠 Isi Mataele</div>
+              <span class="stop-time time-second">2:10 PM — Second Visit</span>
+              <div class="stop-addr">1605 W Meadow Green Dr<br>Riverton, UT 84065</div>
+              <a class="map-btn m3" href="https://maps.google.com/?q=1605+W+Meadow+Green+Dr+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+            </div>
+          </div>
+        </div>
+        <div class="knock-card-reminder">🚪 <span>Knock at <strong>1:40 PM</strong> · <strong>2:30 PM</strong></span></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end sun -->
+</main>
+
+<footer>Made with ❤️ for Riverton 24th Tongan Ward · Mini Mission Weekend 🕊️</footer>
+
+<script>
+function showDay(day, btn) {
+  document.querySelectorAll('.day-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(day).classList.add('active');
+  btn.classList.add('active');
+  document.querySelectorAll('.driver-card').forEach((c,i) => {
+    c.style.animation = 'none';
+    c.offsetHeight;
+    c.style.animation = `slideUp 0.4s ease ${i*0.05}s both`;
+  });
+  const strip = document.getElementById('timing-strip');
+  const banner = document.getElementById('knock-banner');
+  if (day === 'sun') {
+    strip.innerHTML = `
+      <div class="timing-pill">☀️ Sunday · Leave 1:15 PM</div>
+      <div class="timing-pill">🏠 1st Visit 1:20–2:00 PM</div>
+      <div class="timing-pill knock">🚪 Knock @ 1:40 PM</div>
+      <div class="timing-pill">🚗 Drive 2:00–2:10 PM</div>
+      <div class="timing-pill">🏠 2nd Visit 2:10–2:50 PM</div>
+      <div class="timing-pill knock">🚪 Knock @ 2:30 PM</div>
+      <div class="timing-pill">⛪ Back 3:00 PM</div>`;
+    banner.innerHTML = '🚪 <strong>DOOR KNOCK RULE:</strong> At the 20-minute mark, the <em>next companionship</em> knocks — that\'s the signal to wrap up! Sunday knocks: <strong>1:40 PM</strong> and <strong>2:30 PM</strong>';
+  } else {
+    strip.innerHTML = `
+      <div class="timing-pill">📅 Saturday · Leave 6:15 PM</div>
+      <div class="timing-pill">🏠 1st Visit 6:20–7:00 PM</div>
+      <div class="timing-pill knock">🚪 Knock @ 6:40 PM</div>
+      <div class="timing-pill">🚗 Drive 7:00–7:10 PM</div>
+      <div class="timing-pill">🏠 2nd Visit 7:10–7:50 PM</div>
+      <div class="timing-pill knock">🚪 Knock @ 7:30 PM</div>
+      <div class="timing-pill">⛪ Back 8:00 PM</div>`;
+    banner.innerHTML = '🚪 <strong>DOOR KNOCK RULE:</strong> At the 20-minute mark, the <em>next companionship</em> walks up and knocks — that\'s the signal to wrap up gracefully!';
+  }
+}
+</script>
+</body>
+</html>
