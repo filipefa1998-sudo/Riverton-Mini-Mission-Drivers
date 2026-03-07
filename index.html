@@ -103,9 +103,149 @@ main{position:relative;z-index:1;padding:24px 16px 48px;max-width:1100px;margin:
 .m6{color:#9333EA;border-color:#9333EA;background:#FAF5FF;}.m6:hover{background:#9333EA;color:white;}
 
 footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;font-size:13px;font-weight:700;}
+
+/* Identity overlay */
+#id-overlay{position:fixed;inset:0;background:rgba(10,20,40,0.92);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;}
+.id-box{background:#1a2740;border:2px solid #3DAF9A;border-radius:20px;padding:28px 24px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;}
+.id-title{font-family:'Fredoka One',cursive;font-size:26px;color:#FDE68A;text-align:center;margin-bottom:6px;}
+.id-sub{color:#94a3b8;font-size:13px;text-align:center;margin-bottom:20px;font-weight:600;}
+.id-day-label{font-size:11px;font-weight:800;color:#3DAF9A;text-transform:uppercase;letter-spacing:1.5px;margin:14px 0 8px;}
+.id-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.id-btn{padding:10px 12px;border:2px solid #2a3f5f;border-radius:12px;background:#0f1b2d;color:#e2e8f0;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:left;transition:all 0.2s;line-height:1.3;}
+.id-btn:hover{border-color:#3DAF9A;background:#1a3050;color:#FDE68A;}
+
+/* Driver badge */
+#driver-badge{display:none;position:fixed;top:12px;right:12px;z-index:1000;background:#1E3A5F;border:2px solid #3DAF9A;border-radius:30px;padding:6px 14px;font-size:12px;font-weight:800;color:#FDE68A;cursor:pointer;align-items:center;gap:6px;}
+
+/* Complete button */
+.complete-btn{width:100%;margin-top:10px;padding:11px 16px;border:none;border-radius:12px;background:#1E3A5F;color:#FDE68A;font-family:'Fredoka One',cursive;font-size:15px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.complete-btn:hover{background:#3DAF9A;color:white;transform:scale(1.02);}
+.complete-btn.done{background:#22c55e;color:white;cursor:default;}
 </style>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD-BKTaCSvPIkuOQOFDn8muEd1BBAomev0",
+  authDomain: "riverton24thcalendar.firebaseapp.com",
+  projectId: "riverton24thcalendar",
+  storageBucket: "riverton24thcalendar.firebasestorage.app",
+  messagingSenderId: "356944124665",
+  appId: "1:356944124665:web:b9ff396cbd0ecb9377a028"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const DOC_ID = "miniMission2024v3";
+const boardRef = doc(db,"miniMission",DOC_ID);
+
+// Map each driver name → their zone ID and day key
+const DRIVER_MAP = {
+  // Saturday
+  "Talo & Alisha":              { day:"sat", zone:"z1" },
+  "Lisiate & Cherise Fevaleaki":{ day:"sat", zone:"z1" },
+  "Gooch + 1":                  { day:"sat", zone:"z2" },
+  "Aisea Mounga & Ema":         { day:"sat", zone:"z2" },
+  "Fano + 1":                   { day:"sat", zone:"z3" },
+  "Niu + 1":                    { day:"sat", zone:"z3" },
+  "Loa + 1":                    { day:"sat", zone:"z4" },
+  "Saia + 1":                   { day:"sat", zone:"z4" },
+  "Mark & Leilani Barrett":     { day:"sat", zone:"z5" },
+  "Grace & Tame Fangupou":      { day:"sat", zone:"z5" },
+  "Kalo & Sia Tupouata":        { day:"sat", zone:"z6" },
+  "Drina & Seisela Lutui":      { day:"sat", zone:"z6" },
+  // Sunday
+  "Sai & Gooch":                { day:"sun", zone:"sz1a" },
+  "Niu & Fano":                 { day:"sun", zone:"sz1b" },
+  "Lisiate Fevaleaki":          { day:"sun", zone:"sz2a" },
+  "Mark & Leilani Barrett (Sun)":{ day:"sun", zone:"sz2b" },
+  "Lala & Kim":                 { day:"sun", zone:"sz3a" },
+  "Talo & Alisha (Sun)":        { day:"sun", zone:"sz3b" },
+};
+
+let myDriver = localStorage.getItem("mm_driver") || null;
+let liveData  = {};
+
+// Listen live to board
+onSnapshot(boardRef, snap => {
+  if(snap.exists()){ liveData = snap.data(); refreshAllButtons(); }
+});
+
+window.mmSelectDriver = (name) => {
+  myDriver = name;
+  localStorage.setItem("mm_driver", name);
+  document.getElementById("id-overlay").style.display = "none";
+  document.getElementById("driver-badge").textContent = "👤 " + name;
+  document.getElementById("driver-badge").style.display = "inline-flex";
+  refreshAllButtons();
+};
+
+window.mmChangeDriver = () => {
+  document.getElementById("id-overlay").style.display = "flex";
+};
+
+window.mmMarkHome = async (stopKey) => {
+  if(!myDriver){ document.getElementById("id-overlay").style.display="flex"; return; }
+  const info = DRIVER_MAP[myDriver];
+  if(!info) return;
+  const patch = { [info.day]: { [info.zone]: { [stopKey]: true } } };
+  // Also auto-set status to green if standby
+  if(!liveData[info.day]?.[info.zone]?.status || liveData[info.day]?.[info.zone]?.status === "standby"){
+    patch[info.day][info.zone].status = "green";
+  }
+  // If both homes done → mark zone done
+  const cur = liveData[info.day]?.[info.zone] || {};
+  const v1done = stopKey==="v1" ? true : !!cur.v1;
+  const v2done = stopKey==="v2" ? true : !!cur.v2;
+  if(v1done && v2done) patch[info.day][info.zone].status = "done";
+  await setDoc(boardRef, patch, {merge:true});
+};
+
+function refreshAllButtons() {
+  if(!myDriver) return;
+  const info = DRIVER_MAP[myDriver];
+  if(!info) return;
+  const zdata = liveData?.[info.day]?.[info.zone] || {};
+  // v1 = Home A, v2 = Home B
+  ["v1","v2"].forEach(key => {
+    const btn = document.getElementById("btn-" + myDriver.replace(/[^a-zA-Z0-9]/g,"_") + "_" + key);
+    if(!btn) return;
+    if(zdata[key]){
+      btn.textContent = "✅ Marked Complete";
+      btn.style.background = "#22c55e";
+      btn.style.color = "white";
+      btn.style.cursor = "default";
+      btn.onclick = null;
+    }
+  });
+}
+
+// Auto-restore identity on load
+window.addEventListener("DOMContentLoaded", () => {
+  if(myDriver){
+    document.getElementById("driver-badge").textContent = "👤 " + myDriver;
+    document.getElementById("driver-badge").style.display = "inline-flex";
+    refreshAllButtons();
+  } else {
+    document.getElementById("id-overlay").style.display = "flex";
+  }
+});
+</script>
 </head>
 <body>
+
+<div id="id-overlay">
+  <div class="id-box">
+    <div class="id-title">👋 Who are you?</div>
+    <div class="id-sub">Tap your name to get started</div>
+    <div class="id-day-label" style="color:#FDE68A;font-size:13px;">📅 Saturday Drivers</div>
+    <div class="id-day-label">Zone 1</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Talo & Alisha')">🚗 Talo & Alisha</button><button class="id-btn" onclick="mmSelectDriver('Lisiate & Cherise Fevaleaki')">🚗 Lisiate & Cherise Fevaleaki</button></div><div class="id-day-label">Zone 2</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Gooch + 1')">🚗 Gooch + 1</button><button class="id-btn" onclick="mmSelectDriver('Aisea Mounga & Ema')">🚗 Aisea Mounga & Ema</button></div><div class="id-day-label">Zone 3</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Fano + 1')">🚗 Fano + 1</button><button class="id-btn" onclick="mmSelectDriver('Niu + 1')">🚗 Niu + 1</button></div><div class="id-day-label">Zone 4</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Loa + 1')">🚗 Loa + 1</button><button class="id-btn" onclick="mmSelectDriver('Saia + 1')">🚗 Saia + 1</button></div><div class="id-day-label">Zone 5</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Mark & Leilani Barrett')">🚗 Mark & Leilani Barrett</button><button class="id-btn" onclick="mmSelectDriver('Grace & Tame Fangupou')">🚗 Grace & Tame Fangupou</button></div><div class="id-day-label">Zone 6</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Kalo & Sia Tupouata')">🚗 Kalo & Sia Tupouata</button><button class="id-btn" onclick="mmSelectDriver('Drina & Seisela Lutui')">🚗 Drina & Seisela Lutui</button></div>
+    <div class="id-day-label" style="color:#FDE68A;font-size:13px;margin-top:18px;">☀️ Sunday Drivers</div>
+    <div class="id-day-label">Zone 1</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Sai & Gooch')">🚗 Sai & Gooch</button><button class="id-btn" onclick="mmSelectDriver('Niu & Fano')">🚗 Niu & Fano</button></div><div class="id-day-label">Zone 2</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Lisiate Fevaleaki')">🚗 Lisiate Fevaleaki</button><button class="id-btn" onclick="mmSelectDriver('Mark & Leilani Barrett (Sun)')">🚗 Mark & Leilani Barrett (Sun)</button></div><div class="id-day-label">Zone 3</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Lala & Kim')">🚗 Lala & Kim</button><button class="id-btn" onclick="mmSelectDriver('Talo & Alisha (Sun)')">🚗 Talo & Alisha (Sun)</button></div>
+  </div>
+</div>
+<button id="driver-badge" onclick="mmChangeDriver()">👤 Me</button>
+
 
 <div class="hero">
   <span class="hero-emoji">🚗✨</span>
@@ -167,6 +307,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">6:20 PM — First Visit</span>
               <div class="stop-addr">167 Flowerfield Drive<br>Draper, UT 84020</div>
               <a class="map-btn m1" href="https://maps.google.com/?q=167+Flowerfield+Drive+Draper+UT+84020" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Talo___Alisha_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c1"></div>
@@ -177,6 +318,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">7:10 PM — Second Visit</span>
               <div class="stop-addr">712 W Stephens View Way<br>Draper, UT 84020</div>
               <a class="map-btn m1" href="https://maps.google.com/?q=712+W+Stephens+View+Way+Draper+UT+84020" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Talo___Alisha_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -206,6 +348,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">6:20 PM — First Visit</span>
               <div class="stop-addr">712 W Stephens View Way<br>Draper, UT 84020</div>
               <a class="map-btn m1" href="https://maps.google.com/?q=712+W+Stephens+View+Way+Draper+UT+84020" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Lisiate___Cherise_Fevaleaki_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c1"></div>
@@ -216,6 +359,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">7:10 PM — Second Visit</span>
               <div class="stop-addr">167 Flowerfield Drive<br>Draper, UT 84020</div>
               <a class="map-btn m1" href="https://maps.google.com/?q=167+Flowerfield+Drive+Draper+UT+84020" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Lisiate___Cherise_Fevaleaki_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -255,6 +399,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">6:20 PM — First Visit</span>
               <div class="stop-addr">3663 W Salinas Dr<br>Riverton, UT 84065</div>
               <a class="map-btn m2" href="https://maps.google.com/?q=3663+W+Salinas+Dr+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Gooch___1_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c2"></div>
@@ -265,6 +410,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">7:10 PM — Second Visit</span>
               <div class="stop-addr">11542 S 2950 W<br>South Jordan, UT 84095</div>
               <a class="map-btn m2" href="https://maps.google.com/?q=11542+S+2950+W+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Gooch___1_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -294,6 +440,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">6:20 PM — First Visit</span>
               <div class="stop-addr">11542 S 2950 W<br>South Jordan, UT 84095</div>
               <a class="map-btn m2" href="https://maps.google.com/?q=11542+S+2950+W+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Niu___1_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c2"></div>
@@ -304,6 +451,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">7:10 PM — Second Visit</span>
               <div class="stop-addr">3663 W Salinas Dr<br>Riverton, UT 84065</div>
               <a class="map-btn m2" href="https://maps.google.com/?q=3663+W+Salinas+Dr+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Niu___1_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -344,6 +492,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">6:20 PM — First Visit</span>
               <div class="stop-addr">11695 S Eureka Way<br>South Jordan, UT 84095</div>
               <a class="map-btn m3" href="https://maps.google.com/?q=11695+S+Eureka+Way+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Fano___1_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c3"></div>
@@ -354,6 +503,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">7:10 PM — Second Visit</span>
               <div class="stop-addr">1962 W Ingot Way<br>South Jordan, UT 84095</div>
               <a class="map-btn m3" href="https://maps.google.com/?q=1962+W+Ingot+Way+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Fano___1_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -383,6 +533,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">6:20 PM — First Visit</span>
               <div class="stop-addr">1962 W Ingot Way<br>South Jordan, UT 84095</div>
               <a class="map-btn m3" href="https://maps.google.com/?q=1962+W+Ingot+Way+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Aisea_Mounga___Ema_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c3"></div>
@@ -393,6 +544,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">7:10 PM — Second Visit</span>
               <div class="stop-addr">11695 S Eureka Way<br>South Jordan, UT 84095</div>
               <a class="map-btn m3" href="https://maps.google.com/?q=11695+S+Eureka+Way+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Aisea_Mounga___Ema_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -432,6 +584,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">6:20 PM — First Visit</span>
               <div class="stop-addr">2150 W 12824 S<br>Riverton, UT 84065</div>
               <a class="map-btn m4" href="https://maps.google.com/?q=2150+W+12824+S+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Loa___1_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c4"></div>
@@ -442,6 +595,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">7:10 PM — Second Visit</span>
               <div class="stop-addr">13589 S 600 W Unit A311<br>Draper, UT 84020</div>
               <a class="map-btn m4" href="https://maps.google.com/?q=13589+S+600+W+Draper+UT+84020" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Loa___1_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -471,6 +625,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">6:20 PM — First Visit</span>
               <div class="stop-addr">13589 S 600 W Unit A311<br>Draper, UT 84020</div>
               <a class="map-btn m4" href="https://maps.google.com/?q=13589+S+600+W+Draper+UT+84020" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Saia___1_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c4"></div>
@@ -481,6 +636,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">7:10 PM — Second Visit</span>
               <div class="stop-addr">2150 W 12824 S<br>Riverton, UT 84065</div>
               <a class="map-btn m4" href="https://maps.google.com/?q=2150+W+12824+S+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Saia___1_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -520,6 +676,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">6:20 PM — First Visit</span>
               <div class="stop-addr">1830 W 13400 S<br>Riverton, UT 84065</div>
               <a class="map-btn m5" href="https://maps.google.com/?q=1830+W+13400+S+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Mark___Leilani_Barrett_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c5"></div>
@@ -530,6 +687,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">7:10 PM — Second Visit</span>
               <div class="stop-addr">3106 W Desert Rose Dr<br>Riverton, UT 84065</div>
               <a class="map-btn m5" href="https://maps.google.com/?q=3106+W+Desert+Rose+Dr+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Mark___Leilani_Barrett_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -559,6 +717,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">6:20 PM — First Visit</span>
               <div class="stop-addr">3106 W Desert Rose Dr<br>Riverton, UT 84065</div>
               <a class="map-btn m5" href="https://maps.google.com/?q=3106+W+Desert+Rose+Dr+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Drina___Seisela_Lutui_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c5"></div>
@@ -569,6 +728,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">7:10 PM — Second Visit</span>
               <div class="stop-addr">1830 W 13400 S<br>Riverton, UT 84065</div>
               <a class="map-btn m5" href="https://maps.google.com/?q=1830+W+13400+S+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Drina___Seisela_Lutui_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -608,6 +768,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">6:20 PM — First Visit</span>
               <div class="stop-addr">200 E 8680 S<br>Sandy, UT 84070</div>
               <a class="map-btn m6" href="https://maps.google.com/?q=200+E+8680+S+Sandy+UT+84070" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Kalo___Sia_Tupouata_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c6"></div>
@@ -618,6 +779,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">7:10 PM — Second Visit</span>
               <div class="stop-addr">3361 W Water St<br>Riverton, UT 84065</div>
               <a class="map-btn m6" href="https://maps.google.com/?q=3361+W+Water+St+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Kalo___Sia_Tupouata_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -648,6 +810,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">6:20 PM — First Visit</span>
               <div class="stop-addr">3361 W Water St<br>Riverton, UT 84065</div>
               <a class="map-btn m6" href="https://maps.google.com/?q=3361+W+Water+St+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Grace___Tame_Fangupou_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c6"></div>
@@ -658,6 +821,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">7:10 PM — Second Visit</span>
               <div class="stop-addr">200 E 8680 S<br>Sandy, UT 84070</div>
               <a class="map-btn m6" href="https://maps.google.com/?q=200+E+8680+S+Sandy+UT+84070" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Grace___Tame_Fangupou_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -702,6 +866,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">1:20 PM — First Visit</span>
               <div class="stop-addr">5353 W Saguaro Dr<br>West Jordan, UT 84081</div>
               <a class="map-btn m1" href="https://maps.google.com/?q=5353+W+Saguaro+Dr+West+Jordan+UT+84081" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Sai___Gooch___1_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c1"></div>
@@ -712,6 +877,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">2:10 PM — Second Visit</span>
               <div class="stop-addr">4887 S 3200 W<br>Taylorsville, UT 84129</div>
               <a class="map-btn m1" href="https://maps.google.com/?q=4887+S+3200+W+Taylorsville+UT+84129" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Sai___Gooch___1_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -741,6 +907,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">1:20 PM — First Visit</span>
               <div class="stop-addr">4887 S 3200 W<br>Taylorsville, UT 84129</div>
               <a class="map-btn m1" href="https://maps.google.com/?q=4887+S+3200+W+Taylorsville+UT+84129" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Niu___Fano_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c1"></div>
@@ -751,6 +918,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">2:10 PM — Second Visit</span>
               <div class="stop-addr">3663 W Salinas Dr<br>Riverton, UT 84065</div>
               <a class="map-btn m1" href="https://maps.google.com/?q=3663+W+Salinas+Dr+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Niu___Fano_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -790,6 +958,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">1:20 PM — First Visit</span>
               <div class="stop-addr">1075 W Coyote Gulch Way<br>Bluffdale, UT 84065</div>
               <a class="map-btn m2" href="https://maps.google.com/?q=1075+W+Coyote+Gulch+Way+Bluffdale+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Lisiate_Fevaleaki_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c2"></div>
@@ -800,6 +969,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">2:10 PM — Second Visit</span>
               <div class="stop-addr">14035 S Marketview Dr Apt E102<br>Bluffdale, UT 84065</div>
               <a class="map-btn m2" href="https://maps.google.com/?q=14035+S+Marketview+Dr+Bluffdale+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Lisiate_Fevaleaki_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -829,6 +999,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">1:20 PM — First Visit</span>
               <div class="stop-addr">14035 S Marketview Dr Apt E102<br>Bluffdale, UT 84065</div>
               <a class="map-btn m2" href="https://maps.google.com/?q=14035+S+Marketview+Dr+Bluffdale+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Mark___Leilani_Barrett_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c2"></div>
@@ -839,6 +1010,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">2:10 PM — Second Visit</span>
               <div class="stop-addr">1075 W Coyote Gulch Way<br>Bluffdale, UT 84065</div>
               <a class="map-btn m2" href="https://maps.google.com/?q=1075+W+Coyote+Gulch+Way+Bluffdale+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Mark___Leilani_Barrett_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -878,6 +1050,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">1:20 PM — First Visit</span>
               <div class="stop-addr">1605 W Meadow Green Dr<br>Riverton, UT 84065</div>
               <a class="map-btn m3" href="https://maps.google.com/?q=1605+W+Meadow+Green+Dr+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Lala___Kim_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c3"></div>
@@ -888,6 +1061,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">2:10 PM — Second Visit</span>
               <div class="stop-addr">1962 W Ingot Way<br>South Jordan, UT 84095</div>
               <a class="map-btn m3" href="https://maps.google.com/?q=1962+W+Ingot+Way+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Lala___Kim_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -918,6 +1092,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-first">1:20 PM — First Visit</span>
               <div class="stop-addr">1962 W Ingot Way<br>South Jordan, UT 84095</div>
               <a class="map-btn m3" href="https://maps.google.com/?q=1962+W+Ingot+Way+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Talo___Alisha_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c3"></div>
@@ -928,6 +1103,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;color:#94A3B8;
               <span class="stop-time time-second">2:10 PM — Second Visit</span>
               <div class="stop-addr">1605 W Meadow Green Dr<br>Riverton, UT 84065</div>
               <a class="map-btn m3" href="https://maps.google.com/?q=1605+W+Meadow+Green+Dr+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
+              <button id="btn-Talo___Alisha_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
