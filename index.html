@@ -157,10 +157,11 @@ const DRIVER_MAP = {
   // Sunday
   "Sai & Gooch":                { day:"sun", zone:"sz1a" },
   "Niu & Fano":                 { day:"sun", zone:"sz1b" },
-  "Lisiate Fevaleaki":          { day:"sun", zone:"sz2a" },
-  "Mark & Leilani Barrett (Sun)":{ day:"sun", zone:"sz2b" },
+  "Talo & Alisha Vaivaka":      { day:"sun", zone:"sz2a" },
+  "Mark & Leilani Barrett":     { day:"sun", zone:"sz2b" },
   "Lala & Kim":                 { day:"sun", zone:"sz3a" },
-  "Talo & Alisha (Sun)":        { day:"sun", zone:"sz3b" },
+  "Lisiate & Cherise Fevaleaki (Sun)": { day:"sun", zone:"sz3b" },
+  "Lisiate & Cherise Fevaleaki (Sun)": { day:"sun", zone:"sz3b" },
 };
 
 let myDriver = localStorage.getItem("mm_driver") || null;
@@ -241,7 +242,7 @@ window.addEventListener("DOMContentLoaded", () => {
     <div class="id-day-label" style="color:#FDE68A;font-size:13px;">📅 Saturday Drivers</div>
     <div class="id-day-label">Zone 1</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Talo & Alisha')">🚗 Talo & Alisha</button><button class="id-btn" onclick="mmSelectDriver('Lisiate & Cherise Fevaleaki')">🚗 Lisiate & Cherise Fevaleaki</button></div><div class="id-day-label">Zone 2</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Gooch + 1')">🚗 Gooch + 1</button><button class="id-btn" onclick="mmSelectDriver('Aisea Mounga & Ema')">🚗 Aisea Mounga & Ema</button></div><div class="id-day-label">Zone 3</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Fano + 1')">🚗 Fano + 1</button><button class="id-btn" onclick="mmSelectDriver('Niu + 1')">🚗 Niu + 1</button></div><div class="id-day-label">Zone 4</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Loa + 1')">🚗 Loa + 1</button><button class="id-btn" onclick="mmSelectDriver('Saia + 1')">🚗 Saia + 1</button></div><div class="id-day-label">Zone 5</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Mark & Leilani Barrett')">🚗 Mark & Leilani Barrett</button><button class="id-btn" onclick="mmSelectDriver('Grace & Tame Fangupou')">🚗 Grace & Tame Fangupou</button></div><div class="id-day-label">Zone 6</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Kalo & Sia Tupouata')">🚗 Kalo & Sia Tupouata</button><button class="id-btn" onclick="mmSelectDriver('Drina & Seisela Lutui')">🚗 Drina & Seisela Lutui</button></div>
     <div class="id-day-label" style="color:#FDE68A;font-size:13px;margin-top:18px;">☀️ Sunday Drivers</div>
-    <div class="id-day-label">Zone 1</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Sai & Gooch')">🚗 Sai & Gooch</button><button class="id-btn" onclick="mmSelectDriver('Niu & Fano')">🚗 Niu & Fano</button></div><div class="id-day-label">Zone 2</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Lisiate Fevaleaki')">🚗 Lisiate Fevaleaki</button><button class="id-btn" onclick="mmSelectDriver('Mark & Leilani Barrett (Sun)')">🚗 Mark & Leilani Barrett (Sun)</button></div><div class="id-day-label">Zone 3</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Lala & Kim')">🚗 Lala & Kim</button><button class="id-btn" onclick="mmSelectDriver('Talo & Alisha (Sun)')">🚗 Talo & Alisha (Sun)</button></div>
+    <div class="id-day-label">Zone 1</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Sai & Gooch')">🚗 Sai & Gooch</button><button class="id-btn" onclick="mmSelectDriver('Niu & Fano')">🚗 Niu & Fano</button></div><div class="id-day-label">Zone 2</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Talo & Alisha Vaivaka')">🚗 Lisiate Fevaleaki</button><button class="id-btn" onclick="mmSelectDriver('Mark & Leilani Barrett')">🚗 Mark & Leilani Barrett (Sun)</button></div><div class="id-day-label">Zone 3</div><div class="id-grid"><button class="id-btn" onclick="mmSelectDriver('Lala & Kim')">🚗 Lala & Kim</button><button class="id-btn" onclick="mmSelectDriver('Lisiate & Cherise Fevaleaki (Sun)')">🚗 Talo & Alisha (Sun)</button></div>
   </div>
 </div>
 <button id="driver-badge" onclick="mmChangeDriver()">👤 Me</button>
@@ -307,7 +308,7 @@ window.addEventListener("DOMContentLoaded", () => {
               <span class="stop-time time-first">6:20 PM — First Visit</span>
               <div class="stop-addr">167 Flowerfield Drive<br>Draper, UT 84020</div>
               <a class="map-btn m1" href="https://maps.google.com/?q=167+Flowerfield+Drive+Draper+UT+84020" target="_blank">📍 Open in Maps</a>
-              <button id="btn-Talo___Alisha_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
+              <button id="btn-Lisiate___Cherise_Fevaleaki__Sun__v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c1"></div>
@@ -318,7 +319,7 @@ window.addEventListener("DOMContentLoaded", () => {
               <span class="stop-time time-second">7:10 PM — Second Visit</span>
               <div class="stop-addr">712 W Stephens View Way<br>Draper, UT 84020</div>
               <a class="map-btn m1" href="https://maps.google.com/?q=712+W+Stephens+View+Way+Draper+UT+84020" target="_blank">📍 Open in Maps</a>
-              <button id="btn-Talo___Alisha_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
+              <button id="btn-Lisiate___Cherise_Fevaleaki__Sun__v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -676,7 +677,7 @@ window.addEventListener("DOMContentLoaded", () => {
               <span class="stop-time time-first">6:20 PM — First Visit</span>
               <div class="stop-addr">1830 W 13400 S<br>Riverton, UT 84065</div>
               <a class="map-btn m5" href="https://maps.google.com/?q=1830+W+13400+S+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
-              <button id="btn-Mark___Leilani_Barrett_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
+              <button id="btn-Mark___Leilani_Barrett_sun_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c5"></div>
@@ -846,15 +847,15 @@ window.addEventListener("DOMContentLoaded", () => {
       <div class="driver-card" style="animation-delay:0.05s">
         <div class="card-top z1">
           <div class="driver-avatar">🚗</div>
-          <div><div class="driver-label">Driver 1</div><div class="driver-name">Sai & Gooch + 1</div></div>
+          <div><div class="driver-label">Driver 1</div><div class="driver-name">Sai & Gooch</div></div>
         </div>
         <div class="missionaries-section">
           <div class="mis-title">👥 Your Missionaries</div>
           <div class="missionaries-grid">
             <div class="missionary-tag">Alema Malietulua <span class="age">18</span></div>
             <div class="missionary-tag">Benjamin De Hoyos <span class="age">17</span></div>
-            <div class="missionary-tag">Elijah Te'o <span class="age">15</span></div>
-            <div class="missionary-tag">Ethan Hafoka <span class="age">15</span></div>
+            <div class="missionary-tag">Tonga Tafisi <span class="age">17</span></div>
+            <div class="missionary-tag">Sione Afemui <span class="age">16</span></div>
           </div>
         </div>
         <div class="homes-section">
@@ -866,7 +867,7 @@ window.addEventListener("DOMContentLoaded", () => {
               <span class="stop-time time-first">1:20 PM — First Visit</span>
               <div class="stop-addr">5353 W Saguaro Dr<br>West Jordan, UT 84081</div>
               <a class="map-btn m1" href="https://maps.google.com/?q=5353+W+Saguaro+Dr+West+Jordan+UT+84081" target="_blank">📍 Open in Maps</a>
-              <button id="btn-Sai___Gooch___1_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
+              <button id="btn-Sai___Gooch_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c1"></div>
@@ -877,7 +878,7 @@ window.addEventListener("DOMContentLoaded", () => {
               <span class="stop-time time-second">2:10 PM — Second Visit</span>
               <div class="stop-addr">4887 S 3200 W<br>Taylorsville, UT 84129</div>
               <a class="map-btn m1" href="https://maps.google.com/?q=4887+S+3200+W+Taylorsville+UT+84129" target="_blank">📍 Open in Maps</a>
-              <button id="btn-Sai___Gooch___1_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
+              <button id="btn-Sai___Gooch_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -894,8 +895,8 @@ window.addEventListener("DOMContentLoaded", () => {
           <div class="missionaries-grid">
             <div class="missionary-tag">Ramses Mounga <span class="age">16</span></div>
             <div class="missionary-tag">Treasure Matelau <span class="age">16</span></div>
-            <div class="missionary-tag">Jeremiah Takai <span class="age">13</span></div>
-            <div class="missionary-tag">Ali'i Te'o <span class="age">13</span></div>
+            <div class="missionary-tag">Sam Lapuaho <span class="age">16</span></div>
+            <div class="missionary-tag">Paula Havea <span class="age">17</span></div>
           </div>
         </div>
         <div class="homes-section">
@@ -938,15 +939,14 @@ window.addEventListener("DOMContentLoaded", () => {
       <div class="driver-card" style="animation-delay:0.05s">
         <div class="card-top z2">
           <div class="driver-avatar">🚗</div>
-          <div><div class="driver-label">Driver 1</div><div class="driver-name">Lisiate Fevaleaki</div></div>
+          <div><div class="driver-label">Driver 1</div><div class="driver-name">Talo & Alisha Vaivaka</div></div>
         </div>
         <div class="missionaries-section">
           <div class="mis-title">👥 Your Missionaries</div>
           <div class="missionaries-grid">
-            <div class="missionary-tag">Sulieti (Suli) Tafisi <span class="age">16</span></div>
-            <div class="missionary-tag">'Alilia Hola <span class="age">19</span></div>
-            <div class="missionary-tag">Tonga Tafisi <span class="age">17</span></div>
-            <div class="missionary-tag">Sione Afemui <span class="age">16</span></div>
+            <div class="missionary-tag">Elijah Te'o <span class="age">15</span></div>
+            <div class="missionary-tag">Ethan Hafoka <span class="age">15</span></div>
+            <div class="missionary-tag">Lusa Lutui <span class="age">14</span></div>
           </div>
         </div>
         <div class="homes-section">
@@ -958,7 +958,7 @@ window.addEventListener("DOMContentLoaded", () => {
               <span class="stop-time time-first">1:20 PM — First Visit</span>
               <div class="stop-addr">1075 W Coyote Gulch Way<br>Bluffdale, UT 84065</div>
               <a class="map-btn m2" href="https://maps.google.com/?q=1075+W+Coyote+Gulch+Way+Bluffdale+UT+84065" target="_blank">📍 Open in Maps</a>
-              <button id="btn-Lisiate_Fevaleaki_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
+              <button id="btn-Talo___Alisha_Vaivaka_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c2"></div>
@@ -969,7 +969,7 @@ window.addEventListener("DOMContentLoaded", () => {
               <span class="stop-time time-second">2:10 PM — Second Visit</span>
               <div class="stop-addr">14035 S Marketview Dr Apt E102<br>Bluffdale, UT 84065</div>
               <a class="map-btn m2" href="https://maps.google.com/?q=14035+S+Marketview+Dr+Bluffdale+UT+84065" target="_blank">📍 Open in Maps</a>
-              <button id="btn-Lisiate_Fevaleaki_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
+              <button id="btn-Talo___Alisha_Vaivaka_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
@@ -984,10 +984,10 @@ window.addEventListener("DOMContentLoaded", () => {
         <div class="missionaries-section">
           <div class="mis-title">👥 Your Missionaries</div>
           <div class="missionaries-grid">
-            <div class="missionary-tag">Lusa Lutui <span class="age">14</span></div>
-            <div class="missionary-tag">Talimoni (Moni) Langi <span class="age">14</span></div>
-            <div class="missionary-tag">Losaline (Line) Kaufusi <span class="age">17</span></div>
-            <div class="missionary-tag">Leila Iongi <span class="age">18</span></div>
+            <div class="missionary-tag">Jeremiah Takai <span class="age">13</span></div>
+            <div class="missionary-tag">Ali'i Te'o <span class="age">13</span></div>
+            <div class="missionary-tag">Lopeti Barrett <span class="age">15</span></div>
+            <div class="missionary-tag">Siah Fungalei <span class="age">16</span></div>
           </div>
         </div>
         <div class="homes-section">
@@ -1035,10 +1035,10 @@ window.addEventListener("DOMContentLoaded", () => {
         <div class="missionaries-section">
           <div class="mis-title">👥 Your Missionaries</div>
           <div class="missionaries-grid">
-            <div class="missionary-tag">Atelaite Fa <span class="age">15</span></div>
-            <div class="missionary-tag">Kesaia Pouha <span class="age">16</span></div>
-            <div class="missionary-tag">Sam Lapuaho <span class="age">16</span></div>
-            <div class="missionary-tag">Paula Havea <span class="age">17</span></div>
+            <div class="missionary-tag">Sulieti (Suli) Tafisi <span class="age">16</span></div>
+            <div class="missionary-tag">'Alilia Hola <span class="age">19</span></div>
+            <div class="missionary-tag">Losaline (Line) Kaufusi <span class="age">17</span></div>
+            <div class="missionary-tag">Leila Iongi <span class="age">18</span></div>
           </div>
         </div>
         <div class="homes-section">
@@ -1092,7 +1092,7 @@ window.addEventListener("DOMContentLoaded", () => {
               <span class="stop-time time-first">1:20 PM — First Visit</span>
               <div class="stop-addr">1962 W Ingot Way<br>South Jordan, UT 84095</div>
               <a class="map-btn m3" href="https://maps.google.com/?q=1962+W+Ingot+Way+South+Jordan+UT+84095" target="_blank">📍 Open in Maps</a>
-              <button id="btn-Talo___Alisha_v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
+              <button id="btn-Lisiate___Cherise_Fevaleaki__Sun__v1" class="complete-btn" onclick="mmMarkHome('v1')">🏁 Mark Home A Complete</button>
             </div>
           </div>
           <div class="connector c3"></div>
@@ -1103,7 +1103,7 @@ window.addEventListener("DOMContentLoaded", () => {
               <span class="stop-time time-second">2:10 PM — Second Visit</span>
               <div class="stop-addr">1605 W Meadow Green Dr<br>Riverton, UT 84065</div>
               <a class="map-btn m3" href="https://maps.google.com/?q=1605+W+Meadow+Green+Dr+Riverton+UT+84065" target="_blank">📍 Open in Maps</a>
-              <button id="btn-Talo___Alisha_v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
+              <button id="btn-Lisiate___Cherise_Fevaleaki__Sun__v2" class="complete-btn" onclick="mmMarkHome('v2')">🏁 Mark Home B Complete</button>
             </div>
           </div>
         </div>
